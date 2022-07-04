@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html onmousedown="hideContextMenu();">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Панель администратора</title>
+        <!-- Font Awesome, Swal -->
+        <script src="https://kit.fontawesome.com/a966b160a8.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="/static/css/colors.css" />
+        <link rel="stylesheet" href="/static/css/photos.css" />
+        <link rel="stylesheet" href="/static/css/admin.css" />
+        <link rel="stylesheet" href="/static/css/adminform.css" />
+        <link rel="stylesheet" href="/static/css/context.css" />
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="{{font}}" />
+    </head>
+    <body>
+        <script>
+            // filled in admin.js
+            var been_last_year = [];
+        </script>
+        <div class="price hidden">
+            <div id="meal">{{ config.meal }}</div>
+            <div id="child">{{ config.child }}</div>
+            <div id="parent">{{ config.parent }}</div>
+            <div id="shift">{{ shift | int }}</div>
+        </div>
+        <div class="toasts hidden">
+            {% with msgs = get_flashed_messages() %}
+            {% if msgs %}
+            {% for m in msgs %}
+            {% with mtype = (m|string).startswith %}
+            {% with prefix = (m|string).removeprefix %}
+            {% if mtype('F:') %}
+            <div class="msg" data-alert="error">
+                Неверно заполнены: {{ prefix('F:') }}
+            </div>
+            {% elif mtype('E:') %}
+            <div class="msg" data-alert="error">
+                {{ prefix('E:') }}
+            </div>
+            {% elif mtype('W:') %}
+            <div class="msg" data-alert="warning">
+                {{ prefix('W:') }}
+            </div>
+            {% elif mtype('I:') %}
+            <div class="msg" data-alert="success">
+                {{ prefix('I:') }}
+            </div>
+            {% endif %}
+            {% endwith %}
+            {% endwith %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <div class="menu-wrapper">
+            <ul class="tabs-title">
+                <li>
+                    <a href="#posts">
+                        <div class="tab-name">Посты</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#about">
+                        <div class="tab-name">О нас</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#reg">
+                        <div class="tab-name">Регистрация</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#season">
+                        <div class="tab-name">Новый сезон</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#archive">
+                        <div class="tab-name">Архивация</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#account">
+                        <div class="tab-name">Аккаунт</div>
+                    </a>
+                </li>
+                <li class="toggle">
+                    <a href="javascript:toggleDark(true);">
+                        Тема
+                    </a>
+                </li>
+            </ul>
+            <ul class="tabs-title">
+                <li>
+                    <a href="/admin/logout">
+                        Выход
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="tabs-wrapper">
+            <div class="tab separated" id="posts">
+                <form action="/admin/post" method="post" enctype="multipart/form-data">
+                    <div class="form-part">
+                        <div class="fields">
+                            {{ pform.hidden_tag() }}
+                            {{ pform.title.label }}
+                            {{ pform.title() }}
+                            {{ pform.photos.label }}
+                            {{ pform.photos() }}
+                            {{ pform.body.label }}
+                            {% autoescape false %}
+                            {{ editor('post-body') }}
+                            {% endautoescape %}
+                            {{ pform.body(cols=36, rows=10) }}
+                        </div>
+                        <input type="submit" value="Создать">
+                    </div>
+                    <div class="form-part">
+                        <div class="fields">
+                            {% for p in posts %}
+                            <div class="post">
+                                <div class="postid">
+                                    №{{ p.id }}
+                                    <a href="javascript:removePost({{ p.id }});" class="button">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                </div>
+                                <div class="title">{{ p.title }}</div>
+                                <div class="timestamp">{{ p.dt }}</div>
+                                <div class="body">{{ p.body }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab" id="about">
+                <form action="/admin/about" method="post" enctype="multipart/form-data">
+                    {{ about.hidden_tag() }}
+                    <div class="photos" data-dir="{{ photos_dir }}">
+                        {% for p in photos %}
+                        <div class="photo context">
+                            <a href="javascript:void(0);"
+                               onclick="showPhoto(this);"
+                               oncontextmenu="photoContextMenu(event);"
+                               data-photo="{{ p }}">
+                                <img src="{{ thumbs_dir }}/{{ p }}" />
+                            </a>
+                            <ul class="context-menu" onmousedown="event.stopPropagation();">
+                                <li class="centered">
+                                    {{ p }}
+                                </li>
+                                <li>
+                                    <a href="javascript:deletePhoto('{{ p }}');">
+                                        <i class="fa-solid fa-trash"></i>
+                                        Удалить
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="javascript:insertPhoto('{{ p }}');">
+                                        <i class="fa-solid fa-file-circle-plus"></i>
+                                        Вставить в текст
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {{ about.photos.label }}
+                    {{ about.photos() }}
+                    {{ about.text.label }}
+                    {% autoescape false %}
+                    {{ editor('about-text') }}
+                    {% endautoescape %}
+                    {{ about.text(cols=64, rows=16) }}
+                    <input type="submit" value="OK">
+                </form>
+            </div>
+            <div class="tab" id="reg">
+                <form>
+                    <div class="regdb-wrapper">
+                        <div class="actions-wrapper">
+                            <div class="actions">
+                                <div class="top-actions">
+                                    {% if config.reg_allow %}
+                                    <a href="javascript:closeReg();" class="button">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                    {% else %}
+                                    <a href="javascript:openReg();" class="button">
+                                        <i class="fa-solid fa-check"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="javascript:window.location.reload();" class="button">
+                                        <i class="fa-solid fa-rotate-right"></i>
+                                    </a>
+                                    <a href="javascript:tableComputeCost();" class="button">
+                                        <i class="fa-solid fa-ruble-sign"></i>
+                                    </a>
+                                </div>
+                                <div class="bottom-actions">
+                                    <a href="javascript:clearReg();" class="button">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <tbody>
+                                    <tr class="caption">
+                                        {% for c in columns %}
+                                        <th>
+                                            <a class="link small" href="javascript:void(0);" onclick="columnContextMenu(event);">
+                                                {{ c.title }}
+                                                <i class="fa-solid fa-angle-down"></i>
+                                            </a>
+                                            <ul class="context-menu" onmousedown="event.stopPropagation();">
+                                                <li class="centered offset">
+                                                    <select name="sort-type">
+                                                        <option value="desc" selected="selected">
+                                                            От большего к меньшему
+                                                        </option>
+                                                        <option value="asc">
+                                                            От меньшего к большему
+                                                        </option>
+                                                    </select>
+                                                    <input type="text" name="search" placeholder="Поисковый запрос">
+                                                </li>
+                                                <li>
+                                                    <a href="javascript:void(0);" onclick="filter('{{ c.id - 1 }}', this);">
+                                                        OK
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </th>
+                                        {% endfor %}
+                                    </tr>
+                                    {% for item in rform %}
+                                    {% with r = item.__dict__ %}
+                                    <tr id="{{ r.mid }}" data-code="{{ r.code }}">
+                                        {% for c in columns %}
+                                        {% with count = (r.count or 0) | int %}
+                                        {% with children = (r.children or 0) | int %}
+                                        {% if c.key == 'actions' %}
+                                        <td
+                                           class="{{ 'done' if r.payment else '' }}"
+                                           data-value="{{ r.payment | int }}" data-type="num">
+                                            {% for a in config.actions %}
+                                            {% if a == 'm' %}
+                                            <a class="link" href="mailto:{{ r.email }}">
+                                                <i class="fa-solid fa-at"></i>
+                                            </a>
+                                            {% elif a == 'p' %}
+                                            <a class="link" href="tel:{{ r.phone }}">
+                                                <i class="fa-solid fa-phone"></i>
+                                            </a>
+                                            {% elif a == 'n' %}
+                                            <a class="link" href="tel:{{ r.phone }}">
+                                                {{ format_phone(r.phone) }}
+                                            </a>
+                                            {% elif a == 'v' %}
+                                            <a class="link" href="viber://chat/?number={{ r.phone | replace('+','%2B') }}">
+                                                <i class="fa-brands fa-viber"></i>
+                                            </a>
+                                            {% elif a == 'c' %}
+                                            <a class="link payment" href="javascript:void(0);" onclick="markAsDone(this);">
+                                                <i class="fa-solid fa-check"></i>
+                                            </a>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        {% elif c.key == 'adults' %}
+                                        <td data-value="{{ count - children }}" data-type="num">
+                                            {{ count - children }}
+                                            <a class="link" href="javascript:void(0);" onclick="showParentsData(this);">
+                                                <i class="fa-solid fa-list-ul"></i>
+                                            </a>
+                                        </td>
+                                        {% elif c.key == 'children' %}
+                                        <td class="children" data-value="{{ children }}" data-type="num">
+                                            {{ children }}
+                                            <a class="link" href="javascript:void(0);" onclick="showChildrenData(this);">
+                                                <i class="fa-solid fa-list-ul"></i>
+                                            </a>
+                                        </td>
+                                        {% elif c.key == 'dates' or c.key == 'house' %}
+                                        <td class="{{ c.key }}" data-value="{{ r[c.key] }}" data-type="num">
+                                            {% with value = r[c.key] or -1 %}
+                                            {% with table = housedb if c.key == 'house' else dates %}
+                                            {% with attr = 'price' if c.key == 'house' else 'id' %}
+                                            {% with lst = table | selectattr(attr,'==',value) %}
+                                            {{ (lst | first).title }}
+                                            {% endwith %}
+                                            {% endwith %}
+                                            {% endwith %}
+                                            {% endwith %}
+                                        </td>
+                                        {% elif c.key == 'friends' %}
+                                        <td data-value="{{ r.friends }}" data-type="str">
+                                            {% if r.friends %}
+                                            {{ r.friends }}
+                                            {% endif %}
+                                        </td>
+                                        {% elif c.key == 'cost' %}
+                                        <td class="cost-cell" data-value="0" data-type="num">
+                                            <span class="cost"></span>
+                                        </td>
+                                        {% else %}
+                                        <td class="{{ c.key }}" data-value="{{ r[c.key] }}" data-type="{{ c.ctype }}">{{ r[c.key] }}</td>
+                                        {% endif %}
+                                        {% endwith %}
+                                        {% endwith %}
+                                        {% endfor %}
+                                    </tr>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="tab separated" id="season">
+                <form action="/admin/season" method="post" enctype="multipart/form-data">
+                    {{ sform.hidden_tag() }}
+                    <div class="form-part">
+                        <div class="fields">
+                            {{ sform.year.label }}
+                            {{ sform.year() }}
+                            {% for sh in sform.shifts %}
+                            <label class="fields-title">
+                                Смена {{ loop.index }}:
+                            </label>
+                            {{ sh }}
+                            {% endfor %}
+                        </div>
+                        <input type="button" onclick="createItem('#shifts-0');" value="+">
+                    </div>
+                    <div class="form-part">
+                        <div class="fields">
+                            {% for h in sform.houses %}
+                            <label class="fields-title">
+                                Домик {{ loop.index }}:
+                            </label>
+                            {{ h }}
+                            {% endfor %}
+                        </div>
+                        <input type="button" onclick="createItem('#houses-0');" value="+">
+                    </div>
+                    <div class="form-part">
+                        <div class="fields">
+                            {{ sform.meal.label }}
+                            {{ sform.meal() }}
+                            {{ sform.child.label }}
+                            {{ sform.child() }}
+                            {{ sform.parent.label }}
+                            {{ sform.parent() }}
+                        </div>
+                    </div>
+                    <div class="form-part">
+                        <div class="fields">
+                            {{ sform.name.label }}
+                            {{ sform.name() }}
+                            {{ sform.photos.label }}
+                            {{ sform.photos() }}
+                            {{ sform.embed.label }}
+                            {{ sform.embed() }}
+                        </div>
+                        <input type="submit" value="OK">
+                    </div>
+                </form>
+            </div>
+            <div class="tab" id="archive">
+                <form>
+                    <table class="archive-wrapper">
+                        <tr class="archive-option">
+                            <th><div class="title">Регистрационная БД</div></th>
+                            <td><a href="/admin/backup/regdb/xls" class="button">Excel</a></td>
+                        </tr>
+                        <tr class="archive-option">
+                            <th><div class="title">Регистр. БД (основные данные)</div></th>
+                            <td><a href="/admin/backup/reg/csv" class="button">CSV</a></td>
+                            <td><a href="/admin/backup/reg/xls" class="button">Excel</a></td>
+                        </tr>
+                        <tr class="archive-option">
+                            <th><div class="title">Регистр. БД (родители)</div></th>
+                            <td><a href="/admin/backup/regp/csv" class="button">CSV</a></td>
+                            <td><a href="/admin/backup/regp/xls" class="button">Excel</a></td>
+                        </tr>
+                        <tr class="archive-option">
+                            <th><div class="title">Регистр. БД (дети)</div></th>
+                            <td><a href="/admin/backup/regc/csv" class="button">CSV</a></td>
+                            <td><a href="/admin/backup/regc/xls" class="button">Excel</a></td>
+                        </tr>
+                        <tr class="archive-option">
+                            <th><div class="title">Все посты (текст)</div></th>
+                            <td><a href="/admin/backup/posts/csv" class="button">CSV</a></td>
+                            <td><a href="/admin/backup/posts/xls" class="button">Excel</a></td>
+                        </tr>
+                        <tr class="archive-option">
+                            <th><div class="title">Все изображения</div></th>
+                            <td><a href="/admin/backup/images/zip" class="button">ZIP</a></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="tab" id="account">
+                <form action="/admin/pswd" method="post">
+                    {{ aform.hidden_tag() }}
+                    {{ aform.oldpswd.label }}
+                    {{ aform.oldpswd() }}
+                    {{ aform.newpswd.label }}
+                    {{ aform.newpswd() }}
+                    {{ aform.confirm.label }}
+                    {{ aform.confirm() }}
+                    <input type="submit" value="Сменить">
+                </form>
+            </div>
+        </div>
+        <script src="/static/js/dark.js"></script>
+        <script src="/static/js/admin.js"></script>
+        <script src="/static/js/filter.js"></script>
+        <script src="/static/js/photos.js"></script>
+        <script src="/static/js/toasts.js"></script>
+        <script src="/static/js/editor.js"></script>
+        <script src="/static/js/cost.js"></script>
+    </body>
+</html>

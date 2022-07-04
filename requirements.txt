@@ -1,0 +1,10 @@
+waitress
+flask
+flask-wtf
+flask-sqlalchemy
+flask-migrate
+flask-bcrypt
+email-validator
+phonenumberslite
+pillow
+openpyxl

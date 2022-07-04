@@ -1,0 +1,19 @@
+<div class="wrapper">
+    <ul class="family-list">
+        {% for c in data %}
+        <li>
+            <div class="name {{ 'female' if c.gender else 'male' }}">
+                <i class="fa-solid fa-user"></i>
+                {{ c.surname }}
+                {{ c.firstname }}
+                [{{ 'Ж' if c.gender else 'М' }}]
+            </div>
+            <div class="birthday">
+                <i class="fa-solid fa-calendar-days"></i>
+                {{ c.birthday.strftime('%d.%m.%Y') }}
+                [{{ (shift - c.birthday).days // 365 }}]
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>

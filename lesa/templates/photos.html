@@ -1,0 +1,11 @@
+<!-- Photos page -->
+<div class="photos large" data-dir="{{ photos_dir }}">
+    {% for p in photos %}
+    <div class="photo">
+        <a href="javascript:void(0);" onclick="showPhoto(this);" data-photo="{{ p }}">
+            <img src="{{ thumbs_dir }}/{{ p }}" />
+        </a>
+    </div>
+    {% endfor %}
+</div>
+<!-- End of template -->

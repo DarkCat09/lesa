@@ -1,0 +1,11 @@
+<!-- About page -->
+<div class="about">
+    <div class="markup">
+        {% autoescape true %}
+        photos={{ photos_dir }}$!
+        thumbs={{ thumbs_dir }}$!
+        {{ about.text }}
+        {% endautoescape %}
+    </div>
+</div>
+<!-- End of template -->

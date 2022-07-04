@@ -1,0 +1,251 @@
+:root {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    top: 0;
+    left: 0;
+    background: var(--theme-bg);
+}
+
+.hidden {
+    display: none;
+}
+
+.tab {
+    display: none;
+    background-color: var(--theme-bg);
+    padding: 10px;
+}
+.tab:target {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-width: 910px) {
+    .tab:target {
+        justify-content: start;
+    }
+}
+
+form {
+    justify-content: start !important;
+}
+
+.menu-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+ul.tabs-title {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    background: var(--theme-bg);
+}
+ul.tabs-title > li:hover {
+    background: var(--theme-bg);
+    filter: brightness(120%);
+}
+ul.tabs-title > li.active {
+    border-bottom: 2px solid var(--leaf-bg);
+}
+ul.tabs-title > li > a {
+    display: inline-block;
+    padding: 10px;
+    text-decoration: none;
+    color: var(--theme-fg);
+}
+
+ul.family-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+ul.family-list li {
+    display: inline-block;
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #bbb;
+    border-radius: 5px;
+}
+ul.family-list .name.male i {
+    color: #496fa1;
+}
+ul.family-list .name.female i {
+    color: #af5073;
+}
+
+ul.family-list a {
+    color: var(--leaf-bg);
+}
+ul.family-list a:hover {
+    filter: brightness(70%);
+}
+
+.regdb-wrapper {
+    max-height: 89vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-wrapper {
+    max-height: 89vh;
+    overflow-y: auto;
+}
+.table-wrapper::-webkit-scrollbar {
+    width: 0.7rem;
+}
+.table-wrapper::-webkit-scrollbar-track {
+    background: var(--darker-bg);
+    border-radius: 5px;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: var(--light-bg);
+    border-radius: 5px;
+    border: 1px solid var(--darker-bg);
+}
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--highlight-bg);
+}
+
+.regdb-wrapper .actions {
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+}
+.regdb-wrapper .actions a {
+    width: 1rem;
+    margin-left: 5px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
+.regdb-wrapper .top-actions,
+.regdb-wrapper .bottom-actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+table {
+    border-spacing: 10px;
+}
+
+td {
+    text-align: center;
+}
+td.done a.link.payment {
+    color: var(--leaf-bg);
+}
+
+table a.button {
+    width: 100%;
+}
+
+.post a.button {
+    margin: 0;
+    width: 0.8rem;
+    height: 0.8rem;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.post {
+    margin-top: 5px;
+}
+
+.post::after {
+    content: '';
+    display: block;
+    background-color: var(--theme-bg);
+    filter: brightness(80%);
+    width: 100%;
+    height: 0.15rem;
+    border-radius: 5px;
+}
+
+a.link {
+    display: inline-block;
+    font-size: 1.1rem;
+    padding: 0 2px;
+    color: var(--theme-fg);
+    background: var(--theme-bg);
+    text-decoration: none;
+}
+a.link:hover {
+    filter: brightness(120%);
+}
+a.link.small i {
+    font-size: 0.7rem;
+}
+a.link.medium i {
+    font-size: 0.96rem;
+}
+
+ul.toolbar {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--theme-fg);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+ul.toolbar > li > a > i.fa-solid {
+    font-size: 0.9rem;
+}
+
+ul.toolbar > li > a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    padding: 7px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: var(--theme-fg);
+    background: var(--theme-bg);
+    font-size: 1rem;
+}
+
+ul.toolbar > li > a:hover {
+    filter: brightness(150%);
+}
+
+ul.toolbar s {
+    position: relative;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+ul.toolbar s::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 0;
+    border-top: 1px solid var(--theme-fg);
+    border-bottom: 1px solid var(--theme-bg);
+    margin-top: 1px;
+}

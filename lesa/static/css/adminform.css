@@ -1,0 +1,96 @@
+body {
+    --font: 'Nunito', sans-serif;
+    font-family: var(--font);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 89vh;
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 15px #000;
+}
+
+.separated > form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+}
+@media (max-width: 600px) {
+    .separated > form {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-part {
+    margin: 10px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-radius: 5px;
+    box-shadow: 0 0 8px var(--leaf-bg);
+}
+.form-part .fields {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+label:nth-of-type(1) {
+    margin-top: 0;
+}
+
+.fields-title {
+    color: var(--leaf-bg);
+    font-weight: 600;
+}
+
+form input,
+form textarea {
+    margin-top: 3px;
+    font-size: 1.05rem;
+    background: var(--theme-bg);
+    color: var(--theme-fg);
+    outline: none;
+    border: none;
+}
+
+form input:not([type=submit]):not([type=button]),
+form textarea {
+    border-bottom: 1px solid var(--leaf-bg);
+    margin-bottom: 5px;
+}
+
+form input::-webkit-outer-spin-button,
+form input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+form input[type=submit],
+form input[type=button],
+form .button {
+    display: inline-block;
+    border: 0;
+    outline: 0;
+    padding: 5px;
+    border-radius: 5px;
+    background: var(--leaf-bg);
+    color: #ddd;
+    font-weight: 600;
+    cursor: pointer;
+    transition: filter 0.2s ease-out 0s;
+    font-family: var(--font);
+    text-decoration: none;
+}
+
+form input[type=submit]:hover,
+form input[type=button]:hover,
+form .button:hover {
+    filter: brightness(80%);
+}

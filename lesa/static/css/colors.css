@@ -1,0 +1,27 @@
+:root {
+    --leaf-fg: #9acd32;
+    --leaf-bg: #7ba428;
+    --wood-bg: #5b3a29;
+}
+
+body {
+    --theme-fg: #000;
+    --theme-bg: #dfdfdf;
+    --light-bg: #dfdfdf;
+    --darker-bg: #bfbfbf;
+    --highlight-bg: #888;
+    color: var(--theme-fg);
+}
+body.dark {
+    --theme-fg: #ddd;
+    --theme-bg: #2b2a33;
+    --light-bg: #474554;
+    --darker-bg: #222027;
+    --highlight-bg: #76738c;
+}
+
+::selection {
+    color: var(--theme-bg);
+    background: var(--leaf-bg);
+    text-shadow: 0 0 5px var(--theme-fg);
+}

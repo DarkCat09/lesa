@@ -1,0 +1,3 @@
+graft lesa/static
+graft lesa/templates
+global-exclude *.pyc

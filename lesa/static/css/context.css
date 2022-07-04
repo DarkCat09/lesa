@@ -1,0 +1,61 @@
+ul.context-menu {
+    display: none;
+    pointer-events: none;
+}
+
+ul.context-menu.open {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    min-width: 10rem;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    background-color: var(--theme-bg);
+    border: 1px solid var(--theme-fg);
+    border-radius: 5px;
+    z-index: 999;
+    animation: menu-fadein 0.2s ease 0s 1 normal forwards;
+}
+
+ul.context-menu a {
+    display: block;
+    padding: 2px 5px;
+    text-decoration: none;
+    color: var(--theme-fg);
+    background: var(--theme-bg);
+    border-radius: 5px;
+}
+
+ul.context-menu i {
+    width: 1rem;
+    font-size: 0.9rem;
+}
+
+ul.context-menu li.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+ul.context-menu li.offset {
+    margin: 5px;
+}
+
+ul.context-menu input,
+ul.context-menu select {
+    display: block;
+    width: 9.2rem;
+    height: 1.3rem;
+}
+
+ul.context-menu select {
+    border-radius: 5px;
+}
+
+@keyframes menu-fadein {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

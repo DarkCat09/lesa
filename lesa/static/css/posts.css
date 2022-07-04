@@ -1,0 +1,52 @@
+.post-wrapper {
+    padding: 10px 0;
+    border-bottom: 2px solid var(--leaf-bg);
+}
+
+.post-wrapper:nth-child(1) {
+    padding-top: 0;
+}
+
+.timestamp {
+    font-size: 0.8rem;
+}
+
+.post-main h1,
+.post-main h2,
+.post-main h3,
+.post-main h4,
+.post-main h5,
+.post-main h6,
+.post-main ul {
+    margin: 0;
+}
+
+.season h4 {
+    display: inline-block;
+    color: var(--leaf-bg);
+    font-weight: 500;
+}
+
+.season ul {
+    list-style: none;
+    padding: 0 !important;
+}
+
+.post-main ul {
+    padding-left: 15px;
+}
+
+.post-main a:not(.button) {
+    text-decoration: underline;
+    color: var(--leaf-bg);
+}
+
+.post-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+}
+.post-row > .cell {
+    margin-right: 10px;
+}

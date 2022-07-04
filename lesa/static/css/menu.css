@@ -1,0 +1,37 @@
+.menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.top-menu {
+    margin: 0;
+    padding: 10px;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.top-menu > li {
+    margin: 0;
+    padding: 10px;
+}
+
+.top-menu > li > a {
+    display: block;
+    font-size: 1.2rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    color: #fff;
+    font-weight: 500;
+    transition: color 0.25s ease 0s;
+}
+
+.top-menu i {
+    font-size: 1.3rem;
+}
+
+.top-menu > li > a:hover {
+    color: var(--leaf-fg);
+}

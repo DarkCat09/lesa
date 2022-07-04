@@ -1,0 +1,32 @@
+<div class="wrapper">
+    <ul class="family-list">
+        {% for p in data %}
+        <li>
+            <div class="name">
+                <i class="fa-solid fa-user"></i>
+                {{ p.surname }}
+                {{ p.firstname }}
+                {{ p.midname }}
+            </div>
+            <div class="phone">
+                <i class="fa-solid fa-phone"></i>
+                <a href="tel:{{ p.phone }}">{{ format_phone(p.phone) }}</a>
+            </div>
+            <div class="viber">
+                <i class="fa-brands fa-viber"></i>
+                <a href="viber://chat/?number={{ p.phone | replace('+','%2B') }}">Открыть Viber</a>
+            </div>
+            <div class="email">
+                <i class="fa-solid fa-at"></i>
+                <a href="mailto:{{ p.email }}">{{ p.email }}</a>
+            </div>
+            {% if p.social %}
+            <div class="social">
+                <i class="fa-solid fa-comment"></i>
+                <a href="{{ p.social }}">{{ p.social }}</a>
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>

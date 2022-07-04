@@ -1,0 +1,93 @@
+body {
+    --pbwidth: 0%;
+}
+
+.forms {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+    overflow-y: auto;
+}
+
+footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+}
+
+.cost {
+    margin-left: 5px;
+}
+.cost > .number {
+    color: var(--theme-fg);
+}
+.cost > .number.loading {
+    filter: brightness(70%);
+}
+
+.forms-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.input {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.input-label {
+    color: inherit;
+    font-size: 0.8rem;
+}
+
+.input-field > input {
+    border: none;
+    outline: none;
+    border-bottom: 1px solid var(--leaf-bg);
+    background: transparent;
+    color: inherit;
+    width: 20rem;
+    max-width: 100%;
+    font-size: 1.05rem;
+}
+
+.input-field > input::-webkit-inner-spin-button,
+.input-field > input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+.input-field > select {
+    border: none;
+    outline: none;
+    width: 20rem;
+    max-width: 100%;
+    font-size: 1.05rem;
+    border-radius: 5px;
+}
+
+.reg-progress {
+    position: relative;
+    height: 0.3rem;
+    border-radius: 1rem;
+    background-color: var(--bg-color);
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.reg-progress::before {
+    content: '';
+    position: absolute;
+    height: 0.3rem;
+    border-radius: 1rem;
+    background-color: var(--leaf-bg);
+    width: var(--pbwidth);
+    transition: width 0.3s ease-out 0s;
+}

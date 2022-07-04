@@ -1,0 +1,313 @@
+// Interactive Forms and XHR
+
+var page = 0;
+var prev = false;
+var forms = [];
+var skip = [0];
+var sendbtn = null;
+var inprogress = false;
+var atleast_onechild = false;
+
+// ***
+// Simple Forms Page Switcher
+
+function regInit() {
+    setSkip();
+    changePage();
+};
+
+function changePage() {
+
+    // refresh
+    forms = document.querySelectorAll('form');
+    btns = document.querySelectorAll('footer>.button');
+    last = forms.length - 1;
+
+    // check
+    page = Math.max(page, 0);
+    page = Math.min(page, last);
+
+    // skip the page, if it's in the array
+    if (skip.includes(page) && !prev) page = Math.max.apply(null, skip) + 1;
+    if (skip.includes(page) &&  prev) page = Math.min.apply(null, skip) - 1;
+
+    // hide all forms
+    // excluding id=f<page>
+    for (var i = 0; i < forms.length; i++) {
+        if (forms[i].id == 'f' + page) {
+            forms[i].style.display = 'block';
+            continue;
+        }
+        forms[i].style.display = 'none';
+    }
+
+    // change buttons state
+    // (active / inactive)
+    if (page == 0) { btns[0].classList.add('inactive'); }
+    if (page != 0) { btns[0].classList.remove('inactive'); }
+    if (page == last) { btns[1].classList.add('inactive'); }
+    if (page != last) { btns[1].classList.remove('inactive'); }
+
+    // progressbar
+    document.body.style.setProperty('--pbwidth', `${100 / forms.length * page}%`);
+};
+
+function regNext() {
+    page++;
+    changePage();
+};
+
+function regPrev() {
+    page--;
+    prev = true;
+    changePage();
+    prev = false;
+};
+
+function setSkip() {
+    // "remove" extra pages
+    // короче, оставить формы регистрации
+    // только для указанного кол-ва детей,
+    // остальное - лишнее (не во всех семьях 4 ребёнка)
+    var el = document.querySelector('input#children');
+    var count = Number(el.value) || 1;
+    skip = [3, 4, 5, 6].slice(count);
+};
+
+function setRequired(cbid, state) {
+    // if mother/father is going to camp,
+    // it is required to fill out all fields
+
+    var checkbox = document.getElementById(cbid);
+    state = state || checkbox.checked;
+    state = Boolean(state);
+    checkbox.checked = state;
+
+    var form = checkbox.parentNode.parentNode.parentNode;
+    var fields = form.querySelectorAll('input:not([type=hidden]),select');
+    for (var i = 0; i < fields.length; i++) {
+        fields[i].required = state;
+    }
+};
+
+function childInput(elem) {
+    // if there's no data in an input
+    if (elem.value &&
+        elem.value.trim() == '') return;
+    // otherwise, at least one child's
+    // personal data was specified
+    atleast_onechild = true;
+}
+
+function computeCost() {
+
+    // how many people
+    let count_elem = document.querySelector('input#count');
+    let count = Number(count_elem.value) || 1;
+    let children_elem = document.querySelector('input#children');
+    let children = Number(children_elem.value) || 1;
+
+    // what type of house and its price
+    let house = document.querySelectorAll('ul#house>li>input[type=radio]');
+    let selected = 0;
+    for (let h of house) {
+        if (h.checked) {
+            selected = h.value;
+            break;
+        }
+    }
+
+    // camp activities and meals price
+    let block = document.querySelector('div.price');
+    let meal = block.querySelector('#meal').innerHTML;
+    let child = block.querySelector('#child').innerHTML;
+    let parent = block.querySelector('#parent').innerHTML;
+
+    //
+    // just multiply and write the result
+
+    let adults = count - children;
+    let house_cost = selected * count;
+    let meals = meal * count;
+    let camp_children = child * children;
+    let camp_parents = adults * parent;
+
+    let field = document.querySelector('span.cost>span.number');
+    field.innerHTML =
+        house_cost +
+        meals +
+        camp_children +
+        camp_parents;
+};
+
+// ***
+// Sending forms data
+
+function error(data, toPage) {
+
+    end();
+
+    toPage = Number(toPage);
+    if (toPage) {
+        page = toPage;
+        changePage();
+    }
+
+    // if it's a list of wtforms errors
+    if (data && data.constructor == Array) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Неверно заполнены:',
+            text: data.join(', ').toLowerCase()
+        });
+        return;
+    }
+
+    // otherwise,
+    // show an error message
+    Swal.fire({
+        icon: 'error',
+        title: data
+    });
+};
+
+function end() {
+    inprogress = false;
+    sendbtn.innerHTML = 'Отправить';
+    document.cookie = 'lesa_session=del;max-age=0';
+};
+
+function regSend() {
+
+    // if a user has already sent the data
+    if (inprogress) return;
+    
+    let main = document.querySelector('form#f0');
+    sendbtn = document.querySelector('a#send');
+    
+    // send main form
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', '/form/register');
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState != xhr.DONE)
+            return;
+        if (!xhr.response.ok) {
+            error(xhr.response.data);
+            return;
+        }
+        document.cookie = 'lesa_session=' + xhr.response.data + ';max-age=240';
+        regParents();
+    };
+    xhr.send(new FormData(main));
+
+    // change text
+    sendbtn.innerHTML = 'Отправка...';
+    inprogress = true;
+};
+
+function regParents() {
+
+    let parents = document.querySelectorAll('form#f1,form#f2');
+    let last = parents.length - 1;
+    let cb = [
+        parents[0].querySelector('input[type=checkbox]').checked,
+        parents[1].querySelector('input[type=checkbox]').checked
+    ];
+
+    if (!cb[0] && !cb[1])
+        error('Не указано данных ни одного из родителей!', 1);
+
+    // send parents forms
+    for (let i = 0; i < parents.length; i++) {
+
+        // check if the parent is going to camp
+        if (!parents[i].querySelector('input[type=checkbox]').checked) {
+            last--;
+            continue;
+        }
+
+        ((i) => {
+            // xhr
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/form/parents');
+            xhr.responseType = 'json';
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState != xhr.DONE)
+                    return;
+                if (!xhr.response.ok) {
+                    error(xhr.response.data, i + 1);
+                    return;
+                }
+                // if it's the last iteration
+                if (i == last) regChildren();
+            };
+            xhr.send(new FormData(parents[i]));
+        })(i);
+    }
+};
+
+function regChildren() {
+
+    let children = document.querySelectorAll('form#f3,form#f4,form#f5,form#f6');
+    let last = children.length - 1;
+
+    // check if at least one child's
+    // personal data was specified
+    if (!atleast_onechild)
+        error('Не указано данных ни одного ребёнка!', 3);
+
+    // send children forms
+    for (let i = 0; i < children.length; i++) {
+
+        // check if we need to skip the form
+        id = children[i].id.replace('f', '');
+        num = Number(id);
+        if (skip.includes(num)) {
+            last--;
+            continue;
+        }
+
+        ((i) => {
+            // xhr
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/form/children');
+            xhr.responseType = 'json';
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState != xhr.DONE)
+                    return;
+                if (!xhr.response.ok) {
+                    error(xhr.response.data);
+                    return;
+                }
+                // if it's the last iteration
+                if (i == last) regComplete();
+            };
+            xhr.send(new FormData(children[i]));
+        })(i);
+    }
+};
+
+function regComplete() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', '/form/complete');
+    xhr.responseType = 'json';
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState != xhr.DONE)
+            return;
+        if (!xhr.response.ok) {
+            error(xhr.response.data);
+            return;
+        }
+        end();
+        page = 0;
+        changePage();
+        Swal.fire({
+            icon: 'success',
+            title: 'Готово!',
+            timer: 2000
+        });
+        window.location.hash = '';
+    };
+    xhr.send();
+};

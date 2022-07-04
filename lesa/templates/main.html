@@ -1,0 +1,109 @@
+<!-- Main page -->
+<div class="post-wrapper">
+    <div class="post-main season">
+        <h2>Лето {{ year }}</h2>
+        <div class="post-text">
+            <div class="post-row">
+                <div class="cell">
+                    <h4>Смены: </h4>
+                    <ul>
+                        {% for s in shiftdb %}
+                        <li>{{ s.title }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="cell">
+                    <h4>Домики: </h4>
+                    <ul>
+                        {% for h in housedb %}
+                        <li>{{ h.title }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="cell">
+                    <h4>Фото: </h4>
+                    {% with photos_dir, thumbs_dir = html_dirs(0) %}
+                    {% with photos = listdir(post_dirs(0)[0])[:4] %}
+                    <div class="photos" data-dir="{{ photos_dir }}">
+                        {% for p in photos %}
+                        {% with last = (loop.index == 4) %}
+                        <div class="photo {{ 'last' if last else '' }}">
+                            {% if last %}
+                            <a href="#photos0">
+                                <div class="more-bg"></div>
+                                <div class="more">
+                                    <span>Ещё</span>
+                                </div>
+                            </a>
+                            {% endif %}
+                            <a href="javascript:void(0);" onclick="showPhoto(this);" data-photo="{{ p }}">
+                                <img src="{{ thumbs_dir }}/{{ p }}" />
+                            </a>
+                        </div>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                    {% endwith %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="address">
+                <h4>Адрес: </h4>
+                <span>{{ place['name'] }}</span>
+            </div>
+            <div class="hidden-title">
+                <a href="javascript:toggleMap();" class="button">
+                    Показать карту
+                </a>
+            </div>
+            <div class="map hidden">
+                <iframe
+                    data-src="https://yandex.ru/map-widget/v1/-/{{place['mapid']}}"
+                    frameborder="0" allowfullscreen="true"
+                    sandbox="allow-scripts allow-same-origin allow-popups">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% for post in news %}
+<div class="post-wrapper">
+    <div class="timestamp">{{ post.dt.timestamp() }}</div>
+    <div class="post-main">
+        {% with photos_dir, thumbs_dir = html_dirs(post.id) %}
+        {% with photos = listdir(post_dirs(post.id)[0])[:4] %}
+        <h2>{{ post.title }}</h2>
+        <div class="post-text">
+            <div class="markup">
+                {% autoescape true %}
+                photos={{ photos_dir }}$!
+                thumbs={{ thumbs_dir }}$!
+                {{ post.body }}
+                {% endautoescape %}
+            </div>
+        </div>
+        <div class="photos" data-dir="{{ photos_dir }}">
+            {% for p in photos %}
+            {% with last = (loop.index == 4) %}
+            <div class="photo {{ 'last' if last else '' }}">
+                {% if last %}
+                <a href="#photos{{post.id}}">
+                    <div class="more-bg"></div>
+                    <div class="more">
+                        <span>Ещё</span>
+                    </div>
+                </a>
+                {% endif %}
+                <a href="javascript:void(0);" onclick="showPhoto(this);" data-photo="{{ p }}">
+                    <img src="{{ thumbs_dir }}/{{ p }}" />
+                </a>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% endwith %}
+        {% endwith %}
+    </div>
+</div>
+{% endfor %}
+<!-- End of template -->

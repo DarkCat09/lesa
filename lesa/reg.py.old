@@ -1,0 +1,156 @@
+import json
+import secrets
+from datetime import datetime
+from datetime import timezone
+from flask import request
+from flask_wtf import FlaskForm
+
+from app import app, db
+from forms import RegisterForm
+from forms import phone_number
+
+regdb = {}
+
+def show_errors(form:FlaskForm) -> list:
+
+    '''
+    Вывод label для некорректно заполненных полей,
+    например, для сообщения об ошибке'''
+    
+    # лейблы для полей
+    # с некорректными данными
+    err_labels = []
+
+    # для каждого поля в форме
+    for f in form:
+        # если у него есть ошибки
+        name = f.short_name
+        if name in form.errors:
+            # добавляем его лейбл в список
+            err_labels.append(f.label.text)
+    
+    return err_labels
+
+@app.route('/form/register', methods=['POST'])
+def regform():
+
+    from models import Config
+    config = Config.query.filter(Config.id == 0).first()
+
+    if not config.reg_allow:
+        return json.dumps({'ok':False,'data':'Регистрация пока закрыта'})
+
+    form = RegisterForm()
+    if form.validate_on_submit():
+
+        session = secrets.token_urlsafe(10)
+        # А такое может быть?
+        if session in regdb:
+            return json.dumps({'ok':False,'data':'Совпадающие идентификаторы'})
+
+        fields = form.data
+        del fields['csrf_token']
+        regdb[session] = {
+            'main': fields,
+            'parents': [],
+            'children': [],
+            'created': datetime.now(timezone.utc)
+        }
+        return json.dumps({'ok':True,'data':session})
+
+    return json.dumps({'ok':False,'data':show_errors(form)})
+
+@app.route('/form/parents', methods=['POST'])
+def parentform():
+
+    session = request.cookies.get('lesa_session', '0')
+    if not (session in regdb):
+        return json.dumps({'ok':False,'data':'Некорректный ID сессии!'})
+
+    form = ParentForm()
+    if form.validate_on_submit():
+
+        user = regdb[session]
+        if len(user['parents']) >= 2:
+            return json.dumps({'ok':False,'data':'Уже зарегистрировано 2 родителя'})
+
+        fields = form.data
+        del fields['csrf_token']
+        fields['phone'] = phone_number(form.phone.data)
+        user['parents'].append(fields)
+        return json.dumps({'ok':True,'data':session})
+        
+    return json.dumps({'ok':False,'data':show_errors(form)})
+
+@app.route('/form/children', methods=['POST'])
+def childform():
+
+    session = request.cookies.get('lesa_session', '0')
+    if not (session in regdb):
+        return json.dumps({'ok':False,'data':'Некорректный ID сессии!'})
+
+    form = ChildForm()
+    if form.validate_on_submit():
+
+        user = regdb[session]
+        fields = form.data
+        del fields['csrf_token']
+        user['children'].append(fields)
+        return json.dumps({'ok':True,'data':session})
+    
+    return json.dumps({'ok':False,'data':show_errors(form)})
+
+@app.route('/form/complete', methods=['GET'])
+def complete():
+
+    session = request.cookies.get('lesa_session', '0')
+    if not (session in regdb):
+        return json.dumps({'ok':False,'data':'Некорректный ID сессии!'})
+
+    from models import Register, Parent, Child
+
+    user = regdb[session]
+    main = user.get('main', {})
+    parents = user.get('parents', [])
+    children = user.get('children', [])
+    mid = secrets.token_urlsafe(16)
+
+    mail = ''
+    if len(parents) > 0:
+        mail = parents[0].get('email')
+    
+    db.session.add(Register(
+        family=main.get('family'),
+        dates=main.get('dates'),
+        count=main.get('count'),
+        children=main.get('children'),
+        house=main.get('house'),
+        friends=main.get('friends'),
+        email=mail,
+        mid=mid
+    ))
+
+    for p in parents:
+        db.session.add(Parent(
+            mid=mid,
+            surname=p.get('surname'),
+            firstname=p.get('firstname'),
+            midname=p.get('midname'),
+            phone=p.get('phone'),
+            email=p.get('email'),
+            social=p.get('social')
+        ))
+
+    for c in children:
+        db.session.add(Child(
+            mid=mid,
+            surname=c.get('surname'),
+            firstname=c.get('firstname'),
+            gender=c.get('gender'),
+            birthday=c.get('birthday')
+        ))
+
+    db.session.commit()
+    del user
+    del regdb[session]
+    return json.dumps({'ok':True,'data':''})

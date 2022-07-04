@@ -1,0 +1,150 @@
+<!-- Register form -->
+<div class="reg-progress"></div>
+<div class="forms-wrapper">
+    <form class="forms">
+        {{ form.hidden_tag() }}
+        <div class="form" id="f0">
+            <div class="input">
+                <div class="input-label">{{ form.family.label }}</div>
+                <div class="input-field">{{ form.family() }}</div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.dates.label }}</div>
+                <div class="input-field">{{ form.dates() }}</div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.count.label }}</div>
+                <div class="input-field">{{ form.count(oninput="computeCost()") }}</div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.children.label }}</div>
+                <div class="input-field">
+                    {{ form.children(oninput="updateChildrenFields(this.value);computeCost()") }}
+                </div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.meal_count.label }}</div>
+                <div class="input-field">{{ form.meal_count(oninput="computeCost()") }}</div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.house.label }}</div>
+                <div class="input-field">{{ form.house(oninput="computeCost()") }}</div>
+            </div>
+            <div class="input">
+                <div class="input-label">{{ form.friends.label }}</div>
+                <div class="input-field">{{ form.friends() }}</div>
+            </div>
+        </div>
+        <div class="hidden js-form" id="parent-form">
+            {% with pform = form.parentslst[0] %}
+            <div class="fields">
+                {{ pform.hidden_tag() }}
+                <div class="input">
+                    <div class="input-label">{{ pform.surname.label }}</div>
+                    <div class="input-field">{{ pform.surname() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ pform.firstname.label }}</div>
+                    <div class="input-field">{{ pform.firstname() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ pform.midname.label }}</div>
+                    <div class="input-field">{{ pform.midname() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ pform.phone.label }}</div>
+                    <div class="input-field">{{ pform.phone(oninput="changeMainPhone()") }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ pform.email.label }}</div>
+                    <div class="input-field">{{ pform.email(oninput="changeMainEmail()") }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ pform.social.label }}</div>
+                    <div class="input-field">{{ pform.social() }}</div>
+                </div>
+            </div>
+            {% endwith %}
+        </div>
+        {% for i in [1,2] %}
+        <div class="form parent" id="f{{i}}">
+            <div class="input">
+                <div class="input-field">
+                    <input type="checkbox" id="going-{{i}}" oninput="updateParentsFields(this);">
+                    <label for="going-{{i}}">
+                        <b>
+                            {{ 'Мама' if i == 1 else 'Папа' }}
+                            едет в лагерь?
+                        </b>
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="hidden js-form" id="child-form">
+            {% with cform = form.childrenlst[0] %}
+            <div class="fields">
+                {{ cform.hidden_tag() }}
+                <div class="input">
+                    <div class="input-label">{{ cform.surname.label }}</div>
+                    <div class="input-field">{{ cform.surname() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ cform.firstname.label }}</div>
+                    <div class="input-field">{{ cform.firstname() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ cform.gender.label }}</div>
+                    <div class="input-field">{{ cform.gender() }}</div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ cform.birthday.label }}</div>
+                    <div class="input-field">{{ cform.birthday(oninput="computeCost()") }}</div>
+                </div>
+            </div>
+            {% endwith %}
+        </div>
+        <div class="form complete">
+            <div class="fields">
+                <div class="input">
+                    <div class="input-field">
+                        <input type="checkbox" id="been-last-year" oninput="computeCost(this);">
+                        <label for="been-last-year">
+                            Вы были в лагере в прошлом году?
+                        </label>
+                    </div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ form.main_email.label }}</div>
+                    <div class="input-field">
+                        {{ form.main_email(class='hide-items') }}
+                    </div>
+                </div>
+                <div class="input">
+                    <div class="input-label">{{ form.main_phone.label }}</div>
+                    <div class="input-field">
+                        {{ form.main_phone(class='hide-items') }}
+                    </div>
+                </div>
+            </div>
+            Проверьте введённые данные, пользуясь кнопками [Назад] и [Далее].<br />
+            Внизу указана приблизительная стоимость.<br />
+            Для завершения регистрации нажмите:
+            <a href="javascript:regSend();" class="button" id="send">Отправить</a>
+        </div>
+    </form>
+    <div class="actions">
+        <div class="hidden price">
+            <div id="meal">{{ price['meal'] }}</div>
+            <div id="child">{{ price['child'] }}</div>
+            <div id="parent">{{ price['parent'] }}</div>
+            <div id="shift">{{ shift | int }}</div>
+        </div>
+        <footer>
+            <a href="javascript:regPrev();" class="button">Назад</a>
+            <a href="javascript:regNext();" class="button">Далее</a>
+            <span class="cost"><span class="number">0</span> руб./сут.</span>
+        </footer>
+    </div>
+</div>
+<!-- End of template -->

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Вход в панель администрирования</title>
+        <!-- Swal -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="/static/css/colors.css" />
+        <link rel="stylesheet" href="/static/css/login.css" />
+        <link rel="stylesheet" href="/static/css/adminform.css" />
+        <!-- Font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="{{font}}" />
+    </head>
+    <body>
+        <div class="toasts hidden">
+            {% with msgs = get_flashed_messages() %}
+            {% if msgs %}
+            {% for m in msgs %}
+            <div class="msg" data-alert="error">{{ m }}</div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+        </div>
+        <form action="/admin/login" method="post">
+            {{ form.hidden_tag() }}
+            {{ form.password.label }}
+            {{ form.password(autofocus=True) }}
+            <input type="submit" value="Вход">
+        </form>
+        <script src="/static/js/dark.js"></script>
+        <script src="/static/js/toasts.js"></script>
+    </body>
+</html>
