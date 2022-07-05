@@ -1,8 +1,7 @@
 import phonenumbers
 from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms import IntegerField, RadioField
-from wtforms import DateField, TelField
+from wtforms import StringField, IntegerField
+from wtforms import DateField, RadioField
 from wtforms import FieldList, FormField
 from wtforms import HiddenField
 from wtforms import validators
@@ -32,7 +31,7 @@ class ParentForm(FlaskForm):
     surname = StringField(label='Фамилия')
     firstname = StringField(label='Имя')
     midname = StringField(label='Отчество')
-    phone = TelField(
+    phone = StringField(
         label='Номер телефона',
         validators=[validators.Regexp(tel_regex)]
     )

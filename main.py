@@ -1,5 +1,3 @@
-# For Deta
-
 import waitress
 from lesa.app import app
 
