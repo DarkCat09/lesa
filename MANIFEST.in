@@ -1,3 +1,4 @@
 graft lesa/static
 graft lesa/templates
+graft lesa/admin
 global-exclude *.pyc
